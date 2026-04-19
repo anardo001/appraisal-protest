@@ -1,0 +1,22 @@
+
+# Database (large binary — co-located but not versioned)
+backend/dcad2026.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.env
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
