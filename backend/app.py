@@ -17,7 +17,8 @@ from pathlib import Path
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 
-DB_PATH      = Path("C:/Projects/SecondWind/Artifacts/20260415-dallas-protest-demo/dcad2026.db")
+import os
+DB_PATH = Path(os.environ.get("DB_PATH", str(Path(__file__).parent / "dcad2026.db")))
 CURRENT_YEAR = date.today().year
 DISCLAIMER   = (
     "DISCLAIMER: This tool is for informational and demonstration purposes only. "
