@@ -1,21 +1,29 @@
 
-# Database (large binary — co-located but not versioned)
+# Database
 backend/dcad2026.db
 
 # Python
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
 .env
 venv/
 .venv/
-*.egg-info/
-dist/
-build/
 
-# Node
+# Node (root level - Playwright)
 node_modules/
+package-lock.json
+package.json
+
+# Debug / inspection artifacts
+inspect_*.png
+inspect_*.js
+patch_*.py
+
+# Vite scaffold placeholder assets
+frontend-vite/src/assets/react.svg
+frontend-vite/src/assets/vite.svg
+frontend-vite/src/assets/hero.png
+frontend-vite/public/icons.svg
 
 # OS
 .DS_Store

@@ -1,0 +1,260 @@
+
+/* ── Dallas Appraisal Protest Helper — App Styles ─────────────────────────────
+   Design tokens use CSS custom properties (--navy, --amber, --muted, etc.)
+   for consistent theming. Mobile-responsive via flexbox/grid + media queries.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --navy:   #1e3a5f;
+  --amber:  #d97706;
+  --green:  #16a34a;
+  --red:    #dc2626;
+  --muted:  #64748b;
+  --border: #e2e8f0;
+  --bg:     #f8fafc;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: #1e293b;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* ── Layout ── */
+
+
+.app-header {
+  background: var(--navy);
+  color: white;
+  padding: 20px 24px 16px;
+  text-align: left;
+  border-bottom: 4px solid #d97706;
+}
+.app-header h1 { font-size: 1.5rem; font-weight: 700; }
+.app-header p  { font-size: 0.82rem; opacity: 0.75; margin-top: 4px; }
+
+.main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
+
+.app-footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+}
+.app-footer a { color: var(--muted); }
+
+/* ── Step Navigation ── */
+.steps {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  background: white;
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  overflow-x: auto;
+}
+.step {
+  padding: 12px 18px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--muted);
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+
+.step.active { color: #d97706; border-bottom-color: #d97706; font-weight: 700; }
+.step.done   { color: var(--green); }
+.step.done:hover { text-decoration: underline; }
+
+/* ── Cards ── */
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Property result cards ── */
+.prop-card {
+  background: white;
+  border: 1.5px solid var(--navy);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.prop-card:hover { background: #f0f5ff; }
+.prop-card.selected { background: #eef4ff; border-color: var(--amber); }
+.prop-card-addr { font-weight: 600; font-size: 0.95rem; color: var(--navy); }
+.prop-card-meta { font-size: 0.8rem; color: var(--muted); margin-top: 3px; }
+
+/* ── Search inputs ── */
+.search-wrap { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
+.input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }
+.input-group label { font-size: 0.78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.input-group input {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-size: 0.92rem;
+  outline: none;
+  transition: border-color 0.15s;
+  background: white;
+}
+.input-group input:focus { border-color: var(--navy); }
+
+/* ── Buttons ── */
+.btn {
+  padding: 9px 22px;
+  border-radius: 7px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary  { background: #1e3a5f !important; color: #ffffff !important; appearance: none; -webkit-appearance: none; }
+.btn-primary:hover:not(:disabled) { background: #163055; }
+.btn-outline  { background: white; color: var(--navy); border-color: var(--navy); }
+.btn-outline:hover:not(:disabled)  { background: #f1f5f9; }
+.btn-amber    { background: var(--amber); color: white; }
+.btn-amber:hover:not(:disabled)    { background: #b45309; }
+
+.action-row { display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
+
+/* ── Stats bar ── */
+.stats-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.stat-pill {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  min-width: 130px;
+  flex: 1;
+}
+.stat-pill .val       { font-size: 1.3rem; font-weight: 700; color: var(--navy); }
+.stat-pill .val.amber { color: var(--amber); }
+.stat-pill .val.green { color: var(--green); }
+.stat-pill .lbl       { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+/* ── Comps table ── */
+.comps-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+.comps-table th {
+  background: var(--navy);
+  color: white;
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.78rem;
+}
+.comps-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+.comps-table tr:nth-child(even) td { background: #f8fafc; }
+.td-mono  { font-family: monospace; }
+.td-green { color: var(--green); font-weight: 600; }
+.td-red   { color: var(--red);   font-weight: 600; }
+
+/* ── Evidence inline render ── */
+.evidence-inline { font-size: 0.88rem; line-height: 1.65; }
+.evidence-inline h1 { font-size: 1.2rem; margin-bottom: 8px; }
+.evidence-inline h2 { font-size: 0.95rem; margin-top: 16px; margin-bottom: 6px; }
+.evidence-inline table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 0.82rem; }
+.evidence-inline th { background: var(--navy); color: white; padding: 6px 8px; text-align: left; }
+.evidence-inline td { padding: 5px 8px; border-bottom: 1px solid var(--border); }
+.evidence-inline p  { margin-bottom: 8px; }
+
+/* ── Toggle switch ── */
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+}
+.toggle { position: relative; display: inline-block; width: 36px; height: 20px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0;
+  background: #cbd5e1;
+  border-radius: 20px;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  width: 14px; height: 14px;
+  left: 3px; top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.toggle input:checked + .toggle-slider { background: var(--navy); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+/* ── Utility ── */
+.loading  { display: flex; align-items: center; gap: 10px; padding: 20px; color: var(--muted); font-size: 0.88rem; }
+.error-msg { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 16px; color: var(--red); font-size: 0.88rem; margin-bottom: 14px; }
+.disclaimer { font-size: 0.72rem; color: #92400e; margin-top: 24px; padding: 12px 16px; background: #fefce8; border: 1px solid #fde68a; border-radius: 6px; line-height: 1.5; }
+
+/* Spinner animation */
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid var(--border);
+  border-top-color: var(--navy);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .stats-bar { flex-direction: column; }
+  .stat-pill { min-width: 0; }
+  .comps-table { font-size: 0.75rem; }
+  .comps-table th, .comps-table td { padding: 5px 6px; }
+}
+
+
+/* Spinner animation */
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid var(--border);
+  border-top-color: var(--navy);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .stats-bar { flex-direction: column; }
+  .stat-pill { min-width: 0; }
+  .comps-table { font-size: 0.75rem; }
+  .comps-table th, .comps-table td { padding: 5px 6px; }
+}

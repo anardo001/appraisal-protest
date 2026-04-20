@@ -463,7 +463,7 @@ The property owner respectfully requests the ARB reduce the 2026 assessed value 
 class PDFRequest(BaseModel):
     account: str
     owner_name: str = "Property Owner"
-    opinion_of_value: str = ""
+    opinion_of_value: int | str = ""  # Accept int from frontend or str from direct API calls
     exclude_new: bool = True
     supporting_only: bool = True
 
