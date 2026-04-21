@@ -581,7 +581,7 @@ export default function App() {
           <p className="app-header-sub">2026 Tax Year</p>
         </div>
         <div className="app-header-about">
-          <a href="#about" className="about-link" onClick={(e) => e.preventDefault()}>
+          <a href="/About_This_Demo_v4.pdf" target="_blank" rel="noreferrer" className="about-link">
             About This Demo
           </a>
         </div>
