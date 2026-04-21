@@ -4,9 +4,10 @@
   "version": "1.0.0",
   "description": "Dallas Appraisal Protest Helper — build delegate",
   "scripts": {
-    "build": "cd frontend-vite && npm install && npm run build"
+    "build": "cd frontend-vite && npm install && npx vite build"
   },
   "engines": {
     "node": ">=20.19.0"
   }
 }
+
