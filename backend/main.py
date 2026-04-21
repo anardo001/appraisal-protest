@@ -26,12 +26,26 @@ CURRENT_YEAR = date.today().year
 app = FastAPI(title="Dallas Appraisal Protest Helper")
 
 
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add Private Network Access header to suppress browser permission prompts
+# Required when a public site calls an API on a different Render subdomain
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request as StarletteRequest
+
+class PrivateNetworkAccessMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: StarletteRequest, call_next):
+        response = await call_next(request)
+        response.headers["Access-Control-Allow-Private-Network"] = "true"
+        return response
+
+app.add_middleware(PrivateNetworkAccessMiddleware)
 
 # ── Startup: download DB from Google Drive if not present ─────────────────────
 @app.on_event("startup")
