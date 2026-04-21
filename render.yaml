@@ -1,50 +1,33 @@
 
-# render.yaml — Dallas Appraisal Protest Helper
-# Defines two Render services:
-#   1. backend  — FastAPI + Uvicorn (Web Service)
-#   2. frontend — Vite static build (Static Site)
-#
-# Deploy steps:
-#   1. Push this repo to GitHub
-#   2. Create a new Blueprint in Render and point it at the repo
-#   3. Upload dcad2026.db to the backend's Render Disk (see README)
-#   4. Set VITE_API_URL env var on the frontend to the backend's Render URL
-#
-# @agent: Do not modify DB_PATH or PORT env vars — Render injects PORT automatically.
-
 services:
-  # ── FastAPI Backend ────────────────────────────────────────────────────────
-  - type: web
+  - type: web_service
     name: appraisal-protest-api
     runtime: python
     region: oregon
     plan: free
     rootDir: backend
-    buildCommand: pip install fastapi uvicorn fpdf2
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
-    envVars:
-      - key: DB_PATH
-        value: /data/dcad2026.db
-      - key: PYTHON_VERSION
-        value: 3.12.0
-    disk:
-      name: protest-db
-      mountPath: /data
-      sizeGB: 2
+    serviceDetails:
+      runtime: python
+      plan: free
+      region: oregon
+      envSpecificDetails:
+        buildCommand: pip install fastapi uvicorn fpdf2
+        startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+      envVars:
+        - key: DB_PATH
+          value: /data/dcad2026.db
+        - key: PYTHON_VERSION
+          value: "3.12.0"
 
-  # ── Vite Static Frontend ───────────────────────────────────────────────────
-  - type: static
+  - type: static_site
     name: appraisal-protest-ui
-    runtime: node
     region: oregon
     plan: free
     rootDir: frontend-vite
     buildCommand: npm install && npm run build
-    staticPublishPath: dist
+    staticPublishPath: ./dist
     envVars:
       - key: VITE_API_URL
-        # Set this to the appraisal-protest-api Render URL after first deploy
-        # e.g. https://appraisal-protest-api.onrender.com
         value: https://appraisal-protest-api.onrender.com
     routes:
       - type: rewrite
