@@ -446,16 +446,9 @@ def evidence_html(
         comp_yr_min   = stats.get("comp_yr_min", 0)
         comp_yr_max   = stats.get("comp_yr_max", 0)
 
+        # Pass 4 banner deliberately omitted from evidence package — this is for ARB filing,
+        # not internal user guidance. The broadened search note is shown in the app UI only.
         pass4_banner = ""
-        if sup_only and pass_num == 4:
-            pass4_banner = (
-                "<div style='background:#fefce8;border:1px solid #fde68a;border-radius:6px;"
-                "padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#92400e;'>"
-                "<strong>Note:</strong> To identify comparable properties assessed below your $/sq ft, "
-                "the search was broadened to include all homes in your neighborhood regardless of size or year built. "
-                "Review the comps and remove any that are clearly dissimilar to your property before filing."
-                "</div>"
-            )
 
         html_content = f"""<!DOCTYPE html>
 <html lang="en">
@@ -629,15 +622,8 @@ def generate_pdf(req: PDFRequest):
             pdf.cell(0, 6, line, new_x="LMARGIN", new_y="NEXT")
         pdf.ln(4)
 
-        if supporting_only and pass_num == 4:
-            pdf.set_font("Helvetica", "I", 8)
-            pdf.set_text_color(146, 64, 14)
-            pdf.set_fill_color(254, 252, 232)
-            pdf.multi_cell(0, 5,
-                "Note: To identify comparable properties assessed below your $/sq ft, the search was "
-                "broadened to include all homes in your neighborhood regardless of size or year built. "
-                "Review the comps and remove any that are clearly dissimilar to your property before filing.", fill=True)
-            pdf.ln(3)
+        # Pass 4 banner deliberately omitted from PDF evidence — this is for ARB filing,
+        # not internal user guidance. The broadened search note is shown in the app UI only.
 
         pdf.set_font("Helvetica", "B", 12)
         pdf.set_text_color(30, 58, 95)
