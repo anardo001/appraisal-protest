@@ -466,11 +466,16 @@ function SubmitScreen({ property, compsData, ownerName, opinion, excludeNew, onB
       if (!res.ok) throw new Error("PDF generation failed");
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
+      // Open in new tab — required for mobile Safari (avoids replacing current page)
       const a = document.createElement("a");
       a.href = url;
       a.download = `protest_evidence_${property.ACCOUNT_NUM.slice(0, 12)}.pdf`;
+      a.target = "_blank";
+      a.rel = "noreferrer";
+      document.body.appendChild(a);
       a.click();
-      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (e) {
       alert(e.message);
     } finally {
