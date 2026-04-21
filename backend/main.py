@@ -11,6 +11,7 @@ Endpoints:
 """
 import os
 import sqlite3
+import html
 import io
 from datetime import date
 from pathlib import Path
@@ -348,7 +349,7 @@ def evidence_html(
     supporting_only: str = Query("true"),
 ):
     account         = account.strip()
-    owner_name      = owner_name.strip()
+    owner_name      = html.escape(owner_name.strip())
     opinion_str     = opinion_of_value.strip()
     exc_new         = exclude_new.lower() != "false"
     sup_only        = supporting_only.lower() != "false"
@@ -511,7 +512,7 @@ class PDFRequest(BaseModel):
 @app.post("/api/generate-pdf")
 def generate_pdf(req: PDFRequest):
     account         = req.account.strip()
-    owner_name      = req.owner_name.strip()
+    owner_name      = html.escape(req.owner_name.strip())
     opinion_str     = str(req.opinion_of_value).strip()
     exclude_new     = req.exclude_new
     supporting_only = req.supporting_only
@@ -697,7 +698,7 @@ def generate_pdf_get(
     """
     req = PDFRequest(
         account=account,
-        owner_name=owner_name,
+        owner_name=html.escape(owner_name),
         opinion_of_value=opinion_of_value,
         exclude_new=exclude_new.lower() != "false",
         supporting_only=supporting_only.lower() != "false",
