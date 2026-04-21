@@ -11,8 +11,9 @@ venv/
 
 # Node (root level - Playwright)
 node_modules/
+node_modules/
 package-lock.json
-package.json
+!package.json
 
 # Debug / inspection artifacts
 inspect_*.png
