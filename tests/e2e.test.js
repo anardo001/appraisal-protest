@@ -23,8 +23,9 @@ const { chromium } = require("playwright");
 const args      = process.argv.slice(2);
 const urlArg    = args.find(a => a.startsWith("--url="));
 const BASE_URL  = urlArg ? urlArg.split("=")[1] : "http://localhost:9100/dallas-protest/";
-const TEST_ADDR = "6816 Park Ln";
-const TEST_ZIP  = "75225";
+const TEST_ADDR    = "6816 Park Ln";
+const TEST_ZIP     = "75225";
+const TEST_ACCOUNT = "00000407191000000"; // Known DCAD account for 6816 Park Ln
 const TIMEOUT   = 30000;
 
 // ── Test runner ───────────────────────────────────────────────────────────────
@@ -118,20 +119,25 @@ async function runTests() {
       pass(`Step 2: Stats bar showing subject PSF ${subjectPsf}`);
     } catch (e) { fail("Step 2: Stats bar populated", e); }
 
-    // ── Test 6: Step 3 — Evidence screen accessible ──────────────────────────────
+    // ── Test 6: Step 3 — Evidence preview loads with real content ─────────────────
     try {
       await page.click("button:has-text('Build My Protest')");
-      // Wait for Step 3 card to render — check the card and input fields are present
       await page.waitForSelector(".card-title", { timeout: TIMEOUT });
       const stepActive = await page.evaluate(() =>
         document.querySelector(".step.active")?.textContent?.includes("Evidence")
       );
       if (!stepActive) throw new Error("Step 3 nav not active");
-      // Check the name input is present (key UX element for Step 3)
-      const nameInput = await page.$('input[placeholder*="John Smith"]');
-      if (!nameInput) throw new Error("Name input not found on Step 3");
-      pass("Step 3: Evidence screen accessible with name input visible");
-    } catch (e) { fail("Step 3: Evidence screen accessible", e); }
+      // Use server-side request (bypasses CORS) to directly verify the evidence-html endpoint
+      const apiBase = BASE_URL.includes("localhost") ? "http://localhost:8000" : "https://appraisal-protest-api.onrender.com";
+      const evidenceResp = await page.request.get(
+        `${apiBase}/api/evidence-html?account=${TEST_ACCOUNT}&owner_name=Test+Owner&opinion_of_value=2795000&exclude_new=true&supporting_only=true`
+      );
+      if (!evidenceResp.ok()) throw new Error(`Evidence endpoint returned ${evidenceResp.status()}`);
+      const evidenceText = await evidenceResp.text();
+      if (!evidenceText.includes("Appraisal Protest Evidence Package")) throw new Error("Evidence HTML missing expected content");
+      if (!evidenceText.includes("Comparable Properties")) throw new Error("Comp table missing from evidence");
+      pass("Step 3: Evidence-html endpoint returns valid protest package");
+    } catch (e) { fail("Step 3: Evidence-html endpoint returns valid content", e); }
 
     // ── Test 7: Step 3 — Continue disabled without name ──────────────────────
     try {
@@ -186,8 +192,8 @@ async function runTests() {
         !e.includes("xr-spatial-tracking") &&    // browser policy warning (not an error)
         !e.includes("font-size:0") &&             // GA debug output
         !e.includes("onrender.com") &&            // Playwright CORS quirk (works in real browsers)
-        !e.includes("CORS") &&                    // CORS false positives in headless context
-        !e.includes("ERR_FAILED")                 // Playwright cross-origin resource load artifact
+        !e.includes("CORS")                       // CORS false positives in headless context
+        // Note: ERR_FAILED is intentionally NOT filtered — it catches real backend errors
       );
       if (criticalErrors.length > 0)
         throw new Error(`JS errors detected:\n     ${criticalErrors.join("\n     ")}`);
