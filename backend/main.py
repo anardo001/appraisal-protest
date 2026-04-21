@@ -94,7 +94,41 @@ def get_subject(conn, account):
     """, (account,)).fetchone()
     return row_to_dict(row) if row else None
 
+
 def get_comps_data(conn, subject, exclude_new=True, supporting_only=False):
+    """
+    Find comparable properties for the subject using a progressive widening strategy.
+
+    PROGRESSIVE WIDENING (4 passes):
+    The engine starts narrow and widens until it finds enough comps (target: 15).
+    Each pass loosens the size and age constraints:
+      Pass 1: ±10 yr, 75%–125% size   — most similar properties
+      Pass 2: ±15 yr, 65%–135% size   — moderate expansion
+      Pass 3: ±20 yr, 50%–150% size   — broad expansion
+      Pass 4: no size/age constraints  — all neighborhood comps (fallback)
+
+    SIMILARITY SCORING (used to rank and select top 15):
+    Each comp is scored on three dimensions, weighted by protest relevance:
+      PSF gap  40%: How much lower is the comp's $/sqft vs the subject?
+                    Higher weight because this directly supports the "unequal assessment" argument.
+      Age      35%: How close in build year? Similar age = more comparable under Texas ARB standards.
+      Size     25%: How close in square footage? Important but less determinative than PSF/age.
+
+    SUPPORTING_ONLY mode:
+    When True, only comps assessed BELOW the subject's $/sqft are returned.
+    This is the standard protest strategy — show the ARB that similar homes
+    are assessed lower, demonstrating unequal appraisal under Texas Tax Code §41.43(b)(3).
+
+    Args:
+        conn: SQLite connection
+        subject: dict of subject property attributes
+        exclude_new: if True, exclude properties built within the last 2 years
+        supporting_only: if True, filter to comps below subject $/sqft (protest-ready set)
+
+    Returns:
+        List of up to 15 comparable property dicts, each with _similarity, _pass_num,
+        _band_sqft_lo/hi, _band_yr_lo/hi metadata fields.
+    """
     sqft     = float(subject.get("TOT_LIVING_AREA_SF") or 1500)
     yr       = int(float(subject.get("YR_BUILT") or 1980))
     subj_psf = float(subject.get("VAL_PER_SQFT") or 0)
