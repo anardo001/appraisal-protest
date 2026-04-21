@@ -234,8 +234,9 @@ function CompsScreen({ property, onBack, onNext }) {
         <div>
           {data.stats && data.stats.pass_num === 4 && (
             <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 8, padding: "12px 16px", marginBottom: 14, fontSize: "0.82rem", color: "#0369a1" }}>
-              <strong>Note:</strong> All comparable properties assessed below your $/sq ft in this neighborhood are shown.
-              Only {data.stats.total_comps} qualifying propert{data.stats.total_comps === 1 ? "y was" : "ies were"} found — this strengthens your argument that your assessment is above the neighborhood norm.
+              <strong>Note:</strong> To identify {data.stats.total_comps} comparable propert{data.stats.total_comps === 1 ? "y" : "ies"} assessed below your $/sq ft,
+              the search was broadened to include all homes in your neighborhood regardless of size or year built.
+              Review the comps below and consider removing any that are clearly dissimilar to your property before using this evidence.
             </div>
           )}
 

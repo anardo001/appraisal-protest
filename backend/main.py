@@ -451,9 +451,9 @@ def evidence_html(
             pass4_banner = (
                 "<div style='background:#fefce8;border:1px solid #fde68a;border-radius:6px;"
                 "padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#92400e;'>"
-                "<strong>Note:</strong> To identify comparable properties assessed below your value "
-                "in this neighborhood, homes of all sizes and build dates were included. "
-                "Review the comps and remove any that are clearly dissimilar before filing."
+                "<strong>Note:</strong> To identify comparable properties assessed below your $/sq ft, "
+                "the search was broadened to include all homes in your neighborhood regardless of size or year built. "
+                "Review the comps and remove any that are clearly dissimilar to your property before filing."
                 "</div>"
             )
 
@@ -634,9 +634,9 @@ def generate_pdf(req: PDFRequest):
             pdf.set_text_color(146, 64, 14)
             pdf.set_fill_color(254, 252, 232)
             pdf.multi_cell(0, 5,
-                "Note: To identify comparable properties in this neighborhood, homes of all sizes "
-                "and build dates were included. Review the comps and remove any that are clearly "
-                "dissimilar before filing.", fill=True)
+                "Note: To identify comparable properties assessed below your $/sq ft, the search was "
+                "broadened to include all homes in your neighborhood regardless of size or year built. "
+                "Review the comps and remove any that are clearly dissimilar to your property before filing.", fill=True)
             pdf.ln(3)
 
         pdf.set_font("Helvetica", "B", 12)
