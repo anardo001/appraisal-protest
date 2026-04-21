@@ -101,7 +101,7 @@ function SearchScreen({ onSelect }) {
             <label>Street Address</label>
             <input
               type="text"
-              placeholder="e.g. 6816 Park Ln"
+              placeholder="e.g. 123 Oak St"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && runSearch()}
@@ -388,12 +388,14 @@ function EvidenceScreen({ property, compsData, onBack, onNext, excludeNew: initE
         <div className="card-title">Step 3: Evidence Preview</div>
         <div className="search-wrap">
           <div className="input-group">
-            <label>Your Name</label>
+            <label>Your Name <span style={{ color: "#dc2626" }}>*</span></label>
             <input value={ownerName} onChange={(e) => setOwnerName(e.target.value)} placeholder="e.g. John Smith" />
+            <span style={{ fontSize: "0.72rem", color: "#64748b", marginTop: 3 }}>Required to continue to Step 4.</span>
           </div>
           <div className="input-group" style={{ maxWidth: 220 }}>
             <label>Opinion of Value ($)</label>
             <input type="number" value={opinion} onChange={(e) => setOpinion(e.target.value)} />
+            <span style={{ fontSize: "0.72rem", color: "#64748b", marginTop: 3 }}>Auto-calculated from comp median. Adjust if needed.</span>
           </div>
         </div>
 
@@ -405,9 +407,19 @@ function EvidenceScreen({ property, compsData, onBack, onNext, excludeNew: initE
       )}
       <div className="action-row">
         <button className="btn btn-outline" onClick={onBack}>Back</button>
-        <button className="btn btn-primary" onClick={() => onNext({ ownerName, opinion, excludeNew })}>
+        <button
+          className="btn btn-primary"
+          onClick={() => onNext({ ownerName, opinion, excludeNew })}
+          disabled={!ownerName.trim()}
+          title={!ownerName.trim() ? "Please enter your name above to continue" : ""}
+        >
           Continue to Submit
         </button>
+        {!ownerName.trim() && (
+          <p style={{ fontSize: "0.75rem", color: "#d97706", marginTop: 6, textAlign: "right" }}>
+            ⚠ Please enter your name to continue.
+          </p>
+        )}
       </div>
 
       <div className="disclaimer">{DISCLAIMER}</div>
@@ -552,14 +564,32 @@ export default function App() {
 
   return (
     <div>
-      {/* Demo banner — replace with production branding when live */}
-      <div style={{ background: "#1e3a5f", color: "white", textAlign: "center", padding: "7px 16px", fontSize: "0.75rem", letterSpacing: "0.06em", fontWeight: 600 }}>
-        DEMO — Built with Second Wind Solution Foundry
+
+      {/* Demo strip — Second Wind Foundry callout */}
+      <div className="demo-strip">
+        <span className="demo-strip-label">DEMO APPLICATION</span>
+        <span className="demo-strip-divider">·</span>
+        <span>Conceived, Built & Deployed with </span>
+        <a
+          href="https://www.crimsontreesoftware.com/tour"
+          target="_blank"
+          rel="noreferrer"
+          className="demo-strip-link"
+        >
+          Second Wind Foundry ↗
+        </a>
       </div>
 
       <header className="app-header">
-        <h1>Dallas Appraisal Protest Helper</h1>
-        <p>2026 Tax Year · Dallas Central Appraisal District · Demo Tool</p>
+        <div className="app-header-main">
+          <h1>Dallas Appraisal Protest Helper</h1>
+          <p className="app-header-sub">2026 Tax Year</p>
+        </div>
+        <div className="app-header-about">
+          <a href="#about" className="about-link" onClick={(e) => e.preventDefault()}>
+            About This Demo
+          </a>
+        </div>
       </header>
 
       <StepNav currentStep={step} onGoTo={goToStep} />

@@ -27,15 +27,68 @@ body {
 /* ── Layout ── */
 
 
+
+/* ── Demo strip ── */
+.demo-strip {
+  background: #0f2340;
+  color: #cbd5e1;
+  padding: 7px 20px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.demo-strip-label {
+  font-weight: 800;
+  color: #f59e0b;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.demo-strip-divider { color: #475569; }
+.demo-strip-link {
+  color: #fbbf24;
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(251,191,36,0.4);
+  transition: color 0.15s, border-color 0.15s;
+}
+.demo-strip-link:hover { color: #fde68a; border-bottom-color: #fde68a; }
+
+/* ── App Header ── */
 .app-header {
   background: var(--navy);
   color: white;
-  padding: 20px 24px 16px;
-  text-align: left;
+  padding: 16px 24px 14px;
   border-bottom: 4px solid #d97706;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
 }
-.app-header h1 { font-size: 1.5rem; font-weight: 700; }
-.app-header p  { font-size: 0.82rem; opacity: 0.75; margin-top: 4px; }
+.app-header-main h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.01em; }
+.app-header-sub { font-size: 0.78rem; opacity: 0.65; margin-top: 3px; }
+.app-header-about { align-self: center; }
+.about-link {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #f59e0b;
+  text-decoration: none;
+  border: 1.5px solid rgba(245,158,11,0.5);
+  border-radius: 20px;
+  padding: 4px 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.about-link:hover {
+  background: rgba(245,158,11,0.12);
+  border-color: #f59e0b;
+  color: #fde68a;
+}
 
 .main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
 
