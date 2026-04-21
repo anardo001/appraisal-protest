@@ -457,7 +457,7 @@ def evidence_html(
                 "</div>"
             )
 
-        html = f"""<!DOCTYPE html>
+        html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -530,7 +530,7 @@ The property owner respectfully requests the ARB reduce the 2026 assessed value 
 <strong>${opinion:,.0f}</strong>, a reduction of <strong>${reduction:,.0f}</strong>.</p>
 </body>
 </html>"""
-        return HTMLResponse(content=html)
+        return HTMLResponse(content=html_content)
     finally:
         conn.close()
 
