@@ -25,12 +25,38 @@ CURRENT_YEAR = date.today().year
 
 app = FastAPI(title="Dallas Appraisal Protest Helper")
 
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Startup: download DB from Google Drive if not present ─────────────────────
+@app.on_event("startup")
+async def download_db_if_missing():
+    """
+    On Render: DB lives on a persistent disk at /data/dcad2026.db.
+    If the disk is fresh (first deploy), download the DB from Google Drive.
+    Safe to run on every startup — skips if file already exists.
+    """
+    if not DB_PATH.exists():
+        import urllib.request
+        DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+        gdrive_id  = "1-FCVXeK4rUfxfmyfgHPhKA9y2qfAa7Jb"
+        # Use the confirmed direct-download URL for Google Drive
+        dl_url = f"https://drive.usercontent.google.com/download?id={gdrive_id}&export=download&confirm=t"
+        print(f"DB not found at {DB_PATH}. Downloading from Google Drive...")
+        try:
+            urllib.request.urlretrieve(dl_url, DB_PATH)
+            size_mb = DB_PATH.stat().st_size / (1024 * 1024)
+            print(f"DB downloaded: {size_mb:.0f} MB at {DB_PATH}")
+        except Exception as e:
+            print(f"ERROR: Failed to download DB: {e}", file=__import__('sys').stderr)
+    else:
+        size_mb = DB_PATH.stat().st_size / (1024 * 1024)
+        print(f"DB found: {size_mb:.0f} MB at {DB_PATH}")
 
 # ── DB helpers ────────────────────────────────────────────────────────────────
 
