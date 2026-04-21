@@ -437,10 +437,27 @@ function EvidenceScreen({ property, compsData, onBack, onNext, excludeNew: initE
  * - Settlement offer notice
  * - Filing deadline and mailing address
  */
+
+/**
+ * Step 4: Review & submit.
+ * - PDF download: GET /api/generate-pdf (direct link — opens in new tab, mobile Safari compatible)
+ * - HTML preview: direct link to /api/evidence-html (opens new window)
+ * - uFILE filing instructions with deep link to DCAD portal
+ * - Settlement offer notice
+ * - Filing deadline and mailing address
+ */
+
 function SubmitScreen({ property, compsData, ownerName, opinion, excludeNew, onBack }) {
-  const [pdfLoading, setPdfLoading] = useState(false);
-  const ufileUrl = `https://ufile.dallascad.org/?ID=${property.ACCOUNT_NUM}`;
+  const ufileUrl  = `https://ufile.dallascad.org/?ID=${property.ACCOUNT_NUM}`;
   const opinionVal = parseInt(opinion) || compsData?.stats?.recommended_opinion_of_value || 0;
+
+  // Direct GET link — works on all browsers including mobile Safari (no JS blob tricks needed)
+  const pdfUrl =
+    `${API}/api/generate-pdf?account=${property.ACCOUNT_NUM}` +
+    `&owner_name=${encodeURIComponent(ownerName || "Property Owner")}` +
+    `&opinion_of_value=${opinionVal}` +
+    `&exclude_new=${excludeNew}` +
+    `&supporting_only=true`;
 
   const previewUrl =
     `${API}/api/evidence-html?account=${property.ACCOUNT_NUM}` +
@@ -449,49 +466,22 @@ function SubmitScreen({ property, compsData, ownerName, opinion, excludeNew, onB
     `&exclude_new=${excludeNew}` +
     `&supporting_only=true`;
 
-  const downloadPdf = async () => {
-    setPdfLoading(true);
-    try {
-      const res = await fetch(`${API}/api/generate-pdf`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          account: property.ACCOUNT_NUM,
-          owner_name: ownerName || "Property Owner",
-          opinion_of_value: opinionVal,
-          exclude_new: excludeNew,
-          supporting_only: true,
-        }),
-      });
-      if (!res.ok) throw new Error("PDF generation failed");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      // Open in new tab — required for mobile Safari (avoids replacing current page)
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `protest_evidence_${property.ACCOUNT_NUM.slice(0, 12)}.pdf`;
-      a.target = "_blank";
-      a.rel = "noreferrer";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch (e) {
-      alert(e.message);
-    } finally {
-      setPdfLoading(false);
-    }
-  };
-
   return (
     <div>
       <div className="card">
         <div className="card-title">Step 4: Review & Submit</div>
 
         <div style={{ textAlign: "center", padding: "20px 0 12px" }}>
-          <button className="btn btn-amber" onClick={downloadPdf} disabled={pdfLoading} style={{ fontSize: "1rem", padding: "12px 32px" }}>
-            {pdfLoading ? "Generating PDF..." : "⬇ Download Evidence PDF"}
-          </button>
+          {/* Direct anchor link — replaces JS blob download for mobile Safari compatibility */}
+          <a
+            href={pdfUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-amber"
+            style={{ fontSize: "1rem", padding: "12px 32px", display: "inline-block", textDecoration: "none" }}
+          >
+            ⬇ Download Evidence PDF
+          </a>
           <div style={{ marginTop: 10 }}>
             <a href={previewUrl} target="_blank" rel="noreferrer" style={{ color: "#64748b", fontSize: "0.8rem" }}>
               View evidence as HTML (opens in new window)

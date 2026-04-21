@@ -681,6 +681,29 @@ def generate_pdf(req: PDFRequest):
         conn.close()
 
 
+
+@app.get("/api/generate-pdf")
+def generate_pdf_get(
+    account: str = Query(""),
+    owner_name: str = Query("Property Owner"),
+    opinion_of_value: str = Query(""),
+    exclude_new: str = Query("true"),
+    supporting_only: str = Query("true"),
+):
+    """
+    GET version of generate-pdf — accepts query params instead of POST body.
+    Enables direct <a href> linking for mobile Safari compatibility.
+    Same logic as the POST endpoint.
+    """
+    req = PDFRequest(
+        account=account,
+        owner_name=owner_name,
+        opinion_of_value=opinion_of_value,
+        exclude_new=exclude_new.lower() != "false",
+        supporting_only=supporting_only.lower() != "false",
+    )
+    return generate_pdf(req)
+
 if __name__ == "__main__":
     import uvicorn
     if not DB_PATH.exists():
