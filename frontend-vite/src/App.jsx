@@ -708,7 +708,7 @@ export default function App() {
           <p className="app-header-sub">2026 Tax Year</p>
         </div>
         <div className="app-header-about">
-          <a href="/About_This_Demo_v4.pdf" target="_blank" rel="noreferrer" className="about-link">
+          <a href="/SecondWindFoundry_AppraisalDemoPOC.pdf" target="_blank" rel="noreferrer" className="about-link">
             About This Demo
           </a>
         </div>
