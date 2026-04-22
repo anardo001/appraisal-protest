@@ -95,7 +95,8 @@ def get_subject(conn, account):
     return row_to_dict(row) if row else None
 
 
-def get_comps_data(conn, subject, exclude_new=True, supporting_only=False):
+
+def get_comps_data(conn, subject, exclude_new=True, supporting_only=False, pass_lock=None):
     """
     Find comparable properties for the subject using a progressive widening strategy.
 
@@ -116,23 +117,17 @@ def get_comps_data(conn, subject, exclude_new=True, supporting_only=False):
 
     SUPPORTING_ONLY mode:
     When True, only comps assessed BELOW the subject's $/sqft are returned.
-    This is the standard protest strategy — show the ARB that similar homes
-    are assessed lower, demonstrating unequal appraisal under Texas Tax Code §41.43(b)(3).
 
-    Args:
-        conn: SQLite connection
-        subject: dict of subject property attributes
-        exclude_new: if True, exclude properties built within the last 2 years
-        supporting_only: if True, filter to comps below subject $/sqft (protest-ready set)
+    pass_lock: If set (1-4), skip progressive widening and run only that specific pass.
 
     Returns:
-        List of up to 15 comparable property dicts, each with _similarity, _pass_num,
-        _band_sqft_lo/hi, _band_yr_lo/hi metadata fields.
+        List of up to 15 comparable property dicts with similarity metadata.
     """
     sqft     = float(subject.get("TOT_LIVING_AREA_SF") or 1500)
     yr       = int(float(subject.get("YR_BUILT") or 1980))
     subj_psf = float(subject.get("VAL_PER_SQFT") or 0)
     new_clause = f"AND CAST(YR_BUILT AS INTEGER) <= {CURRENT_YEAR - 2}" if exclude_new else ""
+
 
     bands = [
         (0.75, 1.25, 10),
@@ -140,6 +135,9 @@ def get_comps_data(conn, subject, exclude_new=True, supporting_only=False):
         (0.50, 1.50, 20),
         (0.0,  9.0,  99),
     ]
+    # If the user locked a specific pass, restrict the engine to that single band
+    if pass_lock is not None:
+        bands = [bands[pass_lock - 1]]
 
     if supporting_only and subj_psf > 0:
         comps     = []
@@ -345,15 +343,19 @@ def property_lookup(address: str = Query(""), zip: str = Query("")):
         conn.close()
 
 
+
 @app.get("/api/comps")
 def get_comps(
     account: str = Query(""),
     exclude_new: str = Query("true"),
     supporting_only: str = Query("true"),
+    pass_override: str = Query(""),  # Optional: "1", "2", "3", or "4" to lock a specific pass
 ):
+
     account         = account.strip()
     exc_new         = exclude_new.lower() != "false"
     sup_only        = supporting_only.lower() != "false"
+    pass_lock       = int(pass_override) if pass_override in ("1", "2", "3", "4") else None
     if not account:
         raise HTTPException(status_code=400, detail="account required")
     conn = get_db()
@@ -361,7 +363,7 @@ def get_comps(
         subject = get_subject(conn, account)
         if not subject:
             raise HTTPException(status_code=404, detail=f"Account {account} not found")
-        comps   = get_comps_data(conn, subject, exc_new, sup_only)
+        comps   = get_comps_data(conn, subject, exc_new, sup_only, pass_lock=pass_lock)
         stats   = compute_stats(subject, comps)
         stats["supporting_only"] = sup_only
         stats["pass_num"]        = comps[0].get("_pass_num", 1) if comps else 1

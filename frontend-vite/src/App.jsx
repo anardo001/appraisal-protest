@@ -171,17 +171,22 @@ function SearchScreen({ onSelect }) {
  * Pass 4 fallback: shows all comps in neighborhood below subject $/sqft.
  */
 function CompsScreen({ property, onBack, onNext }) {
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
   const [excludeNew, setExcludeNew] = useState(true);
+  const [passOverride, setPassOverride] = useState("1"); // Default to Pass 1; updated after first load
+  const [showScopeInfo, setShowScopeInfo] = useState(false);
+
 
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const url = `${API}/api/comps?account=${property.ACCOUNT_NUM}&exclude_new=${excludeNew}&supporting_only=true`;
-      const res = await fetch(url);
+      // Include pass_override in request; backend locks to that pass if provided
+      const url = `${API}/api/comps?account=${property.ACCOUNT_NUM}&exclude_new=${excludeNew}&supporting_only=true&pass_override=${passOverride}`;
+      const res  = await fetch(url);
       const json = await res.json();
       if (!res.ok) throw new Error(json.detail || json.error || "Failed loading comps");
       setData(json);
@@ -190,11 +195,14 @@ function CompsScreen({ property, onBack, onNext }) {
     } finally {
       setLoading(false);
     }
-  }, [property.ACCOUNT_NUM, excludeNew]);
+  }, [property.ACCOUNT_NUM, excludeNew, passOverride]);
 
+  useEffect(() => { load(); }, [load]);
+
+  // Sync dropdown to the actual pass the engine chose after first load
   useEffect(() => {
-    load();
-  }, [load]);
+    if (data?.stats?.pass_num) setPassOverride(String(data.stats.pass_num));
+  }, [data?.stats?.pass_num]);
 
   const subjectPsf = Number(property.VAL_PER_SQFT || 0);
 
@@ -277,14 +285,118 @@ function CompsScreen({ property, onBack, onNext }) {
               </label>
             </div>
 
+
+            {/* Criteria summary + scope selector */}
             {data.stats && (
               <div style={{ background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: "0.82rem", color: "#475569" }}>
-                <strong>How comps were selected:</strong>{" "}
-                Same neighborhood ({property.NBHD_CD || data.comps[0]?.NBHD_CD || "—"}) and property class ({property.SPTD_CODE || data.comps[0]?.SPTD_CODE || "—"}).{" "}
-                {data.stats.pass_num < 4 && data.stats.search_sqft_lo > 0
-                  ? `Search range: ${fmtN(data.stats.search_sqft_lo)}–${fmtN(data.stats.search_sqft_hi)} sq ft · Built ${data.stats.search_yr_lo}–${data.stats.search_yr_hi} (Pass ${data.stats.pass_num} of 4).`
-                  : "Full neighborhood search (Pass 4)."}
-                {" "}Showing homes assessed below your $/sq ft, ranked by similarity: PSF gap (40%), age (35%), size (25%).
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8 }}>
+                  <div>
+                    <strong>How comps were selected:</strong>{" "}
+                    Same neighborhood ({property.NBHD_CD || data.comps[0]?.NBHD_CD || "—"}) and property class ({property.SPTD_CODE || data.comps[0]?.SPTD_CODE || "—"}).{" "}
+                    {data.stats.pass_num < 4 && data.stats.search_sqft_lo > 0
+                      ? `Search range: ${fmtN(data.stats.search_sqft_lo)}–${fmtN(data.stats.search_sqft_hi)} sq ft · Built ${data.stats.search_yr_lo}–${data.stats.search_yr_hi} (Pass ${data.stats.pass_num} of 4).`
+                      : "Full neighborhood search (Pass 4)."}
+                    {" "}Results ranked by similarity after scope is applied.
+                  </div>
+                </div>
+                {/* Search scope selector */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                  <label style={{ fontWeight: 600, color: "#334155", whiteSpace: "nowrap" }}>Search scope:</label>
+                  <select
+                    value={passOverride}
+                    onChange={(e) => setPassOverride(e.target.value)}
+                    style={{ border: "1px solid #cbd5e1", borderRadius: 6, padding: "4px 10px", fontSize: "0.82rem", background: "white", color: "#1e293b" }}
+                  >
+                    <option value="1">Best match (Pass 1 — ±10yr, 75–125% size)</option>
+                    <option value="2">Moderate (Pass 2 — ±15yr, 65–135% size)</option>
+                    <option value="3">Broad (Pass 3 — ±20yr, 50–150% size)</option>
+                    <option value="4">Full neighborhood (Pass 4 — any size/age)</option>
+                  </select>
+                  <button
+                    onClick={() => setShowScopeInfo(true)}
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", fontSize: "1rem", padding: "2px 4px", lineHeight: 1 }}
+                    title="How does search scope work?"
+                  >ℹ️</button>
+                  <span style={{ fontSize: "0.75rem", color: "#94a3b8", fontStyle: "italic" }}>
+                    This demo app pre-selected the ideal grouping for your property.
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Info dialog — search scope explanation */}
+            {showScopeInfo && (
+              <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }}
+                   onClick={() => setShowScopeInfo(false)}>
+                <div style={{ background: "white", borderRadius: 12, padding: 28, maxWidth: 540, width: "90%", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}
+                     onClick={(e) => e.stopPropagation()}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                    <h3 style={{ margin: 0, color: "#1e3a5f", fontSize: "1.05rem" }}>About Your Comparable Properties</h3>
+                    <button onClick={() => setShowScopeInfo(false)} style={{ background: "none", border: "none", fontSize: "1.4rem", cursor: "pointer", color: "#94a3b8", lineHeight: 1 }}>×</button>
+                  </div>
+                  <p style={{ fontSize: "0.85rem", color: "#475569", marginBottom: 14, lineHeight: 1.6 }}>
+                    This demo app searches for comparable properties using progressive criteria, pre-selecting the scope that gives you the strongest evidence for your protest.
+                  </p>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8rem", marginBottom: 16 }}>
+                    <thead>
+                      <tr style={{ background: "#1e3a5f", color: "white" }}>
+                        <th style={{ padding: "7px 10px", textAlign: "left" }}>Scope</th>
+                        <th style={{ padding: "7px 10px", textAlign: "left" }}>Age range</th>
+                        <th style={{ padding: "7px 10px", textAlign: "left" }}>Size range</th>
+                        <th style={{ padding: "7px 10px", textAlign: "left" }}>Best for</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ["Best match (Pass 1)", "±10 years", "75–125% your size", "Tightest comps, most persuasive"],
+                        ["Moderate (Pass 2)", "±15 years", "65–135% your size", "More comps, still similar"],
+                        ["Broad (Pass 3)", "±20 years", "50–150% your size", "Wider net"],
+                        ["Full neighborhood (Pass 4)", "Any age", "Any size", "Maximum comps, least similar"],
+                      ].map(([scope, age, size, best], i) => (
+                        <tr key={i} style={{ background: i % 2 === 0 ? "#f8fafc" : "white" }}>
+                          <td style={{ padding: "6px 10px", fontWeight: i === 0 ? 700 : 400 }}>{scope}</td>
+                          <td style={{ padding: "6px 10px" }}>{age}</td>
+                          <td style={{ padding: "6px 10px" }}>{size}</td>
+                          <td style={{ padding: "6px 10px", color: "#475569" }}>{best}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <p style={{ fontSize: "0.85rem", color: "#334155", fontWeight: 600, marginBottom: 8 }}>How results are ranked:</p>
+                  <p style={{ fontSize: "0.82rem", color: "#475569", marginBottom: 10, lineHeight: 1.6 }}>
+                    Once the search scope is applied, results are ranked to prioritize the best matches for your protest:
+                  </p>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8rem", marginBottom: 16 }}>
+                    <thead>
+                      <tr style={{ background: "#1e3a5f", color: "white" }}>
+                        <th style={{ padding: "7px 10px", textAlign: "left" }}>Factor</th>
+                        <th style={{ padding: "7px 10px", textAlign: "left" }}>Weight</th>
+                        <th style={{ padding: "7px 10px", textAlign: "left" }}>Why it matters</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ["$/sq ft gap", "40%", "How much lower is the comp's assessed value per sq ft? Higher gap = stronger evidence."],
+                        ["Age similarity", "35%", "How close in build year? ARB panels expect similar-age comparables."],
+                        ["Size similarity", "25%", "How close in square footage? Keeps comps structurally comparable."],
+                      ].map(([factor, weight, why], i) => (
+                        <tr key={i} style={{ background: i % 2 === 0 ? "#f8fafc" : "white" }}>
+                          <td style={{ padding: "6px 10px", fontWeight: 600 }}>{factor}</td>
+                          <td style={{ padding: "6px 10px", fontWeight: 700, color: "#1e3a5f" }}>{weight}</td>
+                          <td style={{ padding: "6px 10px", color: "#475569" }}>{why}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <p style={{ fontSize: "0.75rem", color: "#94a3b8", fontStyle: "italic", marginBottom: 0, lineHeight: 1.5 }}>
+                    Narrowing the scope may give you fewer but stronger comparable properties. Expanding may give you more comps but some may be less similar to your home.
+                  </p>
+                  <button
+                    onClick={() => setShowScopeInfo(false)}
+                    className="btn btn-primary"
+                    style={{ marginTop: 18, width: "100%" }}
+                  >Close</button>
+                </div>
               </div>
             )}
 

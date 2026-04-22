@@ -128,7 +128,7 @@ async function runTests() {
       );
       if (!stepActive) throw new Error("Step 3 nav not active");
       // Use server-side request (bypasses CORS) to directly verify the evidence-html endpoint
-      const apiBase = BASE_URL.includes("localhost") ? "http://localhost:8000" : "https://appraisal-protest-api.onrender.com";
+      const apiBase = BASE_URL.includes("localhost") ? "http://localhost:8001" : "https://appraisal-protest-api.onrender.com";
       const evidenceResp = await page.request.get(
         `${apiBase}/api/evidence-html?account=${TEST_ACCOUNT}&owner_name=Test+Owner&opinion_of_value=2795000&exclude_new=true&supporting_only=true`
       );
