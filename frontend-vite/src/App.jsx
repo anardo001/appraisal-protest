@@ -314,10 +314,22 @@ function CompsScreen({ property, onBack, onNext }) {
                   </select>
                   <button
                     onClick={() => setShowScopeInfo(true)}
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", fontSize: "1rem", padding: "2px 4px", lineHeight: 1 }}
+                    style={{
+                      background: "#eff6ff",
+                      border: "1.5px solid #93c5fd",
+                      borderRadius: "20px",
+                      cursor: "pointer",
+                      color: "#1d4ed8",
+                      fontSize: "0.72rem",
+                      fontWeight: 700,
+                      padding: "3px 10px",
+                      lineHeight: 1.4,
+                      letterSpacing: "0.03em",
+                      whiteSpace: "nowrap",
+                    }}
                     title="How does search scope work?"
-                  >ℹ️</button>
-                  <span style={{ fontSize: "0.75rem", color: "#94a3b8", fontStyle: "italic" }}>
+                  >ⓘ How it works</button>
+                  <span style={{ fontSize: "0.75rem", color: "#475569", fontStyle: "italic", fontWeight: 600 }}>
                     This demo app pre-selected the ideal grouping for your property.
                   </span>
                 </div>
@@ -328,7 +340,7 @@ function CompsScreen({ property, onBack, onNext }) {
             {showScopeInfo && (
               <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }}
                    onClick={() => setShowScopeInfo(false)}>
-                <div style={{ background: "white", borderRadius: 12, padding: 28, maxWidth: 540, width: "90%", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}
+                <div style={{ background: "white", borderRadius: 12, padding: 28, maxWidth: 680, width: "92%", maxHeight: "95vh", overflowY: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}
                      onClick={(e) => e.stopPropagation()}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                     <h3 style={{ margin: 0, color: "#1e3a5f", fontSize: "1.05rem" }}>About Your Comparable Properties</h3>
@@ -388,9 +400,11 @@ function CompsScreen({ property, onBack, onNext }) {
                       ))}
                     </tbody>
                   </table>
-                  <p style={{ fontSize: "0.75rem", color: "#94a3b8", fontStyle: "italic", marginBottom: 0, lineHeight: 1.5 }}>
-                    Narrowing the scope may give you fewer but stronger comparable properties. Expanding may give you more comps but some may be less similar to your home.
-                  </p>
+                  <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 8, padding: "12px 14px", marginBottom: 0 }}>
+                    <p style={{ fontSize: "0.82rem", color: "#0c4a6e", fontWeight: 600, margin: 0, lineHeight: 1.6 }}>
+                      💡 <strong>Tip:</strong> Expanding your search scope will surface more comparable properties and may increase your potential tax reduction — but comps will be less similar to your home. Narrowing gives you fewer, more precise comps that are easier to defend at an ARB hearing.
+                    </p>
+                  </div>
                   <button
                     onClick={() => setShowScopeInfo(false)}
                     className="btn btn-primary"
