@@ -111,7 +111,7 @@ def get_comps_data(conn, subject, exclude_new=True, supporting_only=False, pass_
     SIMILARITY SCORING (used to rank and select top 15):
     Each comp is scored on three dimensions, weighted by protest relevance:
       PSF gap  40%: How much lower is the comp's $/sqft vs the subject?
-                    Higher weight because this directly supports the "unequal assessment" argument.
+                    Higher weight because this directly supports the "value exceeds market" argument.
       Age      35%: How close in build year? Similar age = more comparable under Texas ARB standards.
       Size     25%: How close in square footage? Important but less determinative than PSF/age.
 
@@ -473,7 +473,7 @@ def evidence_html(
 </head>
 <body>
 <h1>Appraisal Protest Evidence Package</h1>
-<p><strong>Prepared:</strong> {today} | <strong>Basis:</strong> Texas Tax Code §41.41(a)(1) & §41.43(b)(3)</p>
+<p><strong>Prepared:</strong> {today} | <strong>Basis:</strong> Texas Tax Code §41.43(b)(1) — Value Exceeds Market Value</p>
 <h2>Subject Property</h2>
 <table>
   <tr><th>Field</th><th>Value</th></tr>
@@ -512,8 +512,8 @@ def evidence_html(
 <p>The subject property at <strong>{subj_addr}</strong> (Account: {subj_acct})
 is proposed for assessment at <strong>${subj_val:,.0f}</strong>
 ({subj_sf} sq ft at ${subj_psf_v}/sq ft) for the 2026 tax year.</p>
-<p>Pursuant to Texas Tax Code §41.43(b)(3), the property owner respectfully protests that
-this value is unequal to comparable properties in the same neighborhood.
+<p>Pursuant to Texas Tax Code §41.43(b)(1), the property owner respectfully protests that
+the assessed value exceeds the property's market value as demonstrated by comparable assessments in the same neighborhood.
 A review of <strong>{tot_comps} comparable single-family residential properties</strong>
 in neighborhood code <strong>{subj_nbhd}</strong> — same property class ({subj_sptd}),
 with living areas ranging from <strong>{comp_sqft_min:,} to {comp_sqft_max:,} sq ft</strong>
@@ -521,8 +521,8 @@ and built between <strong>{comp_yr_min} and {comp_yr_max}</strong> — reveals a
 assessed value of <strong>${med_psf:.2f}/sq ft</strong>,
 compared to the subject's proposed <strong>${subj_psf_f:.2f}/sq ft</strong>.</p>
 <p><strong>{below} of {tot_comps} comparable properties</strong> are assessed at a lower
-dollar-per-square-foot rate than the subject property. This constitutes unequal appraisal
-under Texas law. Applying the median comparable rate of ${med_psf:.2f}/sq ft to the
+dollar-per-square-foot rate than the subject property. This demonstrates that the current
+assessment exceeds market value as indicated by comparable properties. Applying the median comparable rate of ${med_psf:.2f}/sq ft to the
 subject's {subj_sf} sq ft yields an equalized value of <strong>${opinion:,.0f}</strong>.
 The property owner respectfully requests the ARB reduce the 2026 assessed value to
 <strong>${opinion:,.0f}</strong>, a reduction of <strong>${reduction:,.0f}</strong>.</p>
@@ -581,7 +581,7 @@ def generate_pdf(req: PDFRequest):
         pdf.cell(0, 10, "Appraisal Protest Evidence Package", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font("Helvetica", "", 9)
         pdf.set_text_color(100, 116, 139)
-        pdf.cell(0, 6, f"Prepared: {today}  |  Texas Tax Code SS41.41(a)(1) & SS41.43(b)(3)", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 6, f"Prepared: {today}  |  Texas Tax Code SS41.43(b)(1) -- Value Exceeds Market Value", new_x="LMARGIN", new_y="NEXT")
         pdf.ln(4)
 
         pdf.set_font("Helvetica", "B", 12)
@@ -672,8 +672,8 @@ def generate_pdf(req: PDFRequest):
             f"${subj_psf:.2f}/sq ft) for the 2026 tax year."
         )
         para2 = (
-            f"Pursuant to Texas Tax Code SS41.43(b)(3), the property owner respectfully "
-            f"protests that this value is unequal to comparable properties in the same "
+            f"Pursuant to Texas Tax Code SS41.43(b)(1), the property owner respectfully "
+            f"protests that the assessed value exceeds the property's market value as demonstrated by comparable assessments in the same "
             f"neighborhood. A review of {tot_c} comparable single-family residential "
             f"properties in neighborhood code {subject.get('NBHD_CD','')} -- same property "
             f"class ({subject.get('SPTD_CODE','')}), with living areas ranging from "
@@ -683,8 +683,8 @@ def generate_pdf(req: PDFRequest):
         )
         para3 = (
             f"{below} of {tot_c} comparable properties are assessed at a lower "
-            f"dollar-per-square-foot rate than the subject property. This constitutes "
-            f"unequal appraisal under Texas law. Applying the median comparable rate of "
+            f"dollar-per-square-foot rate than the subject property. This demonstrates that the current "
+            f"assessment exceeds market value as indicated by comparable properties. Applying the median comparable rate of "
             f"${med_psf:.2f}/sq ft to the subject's {subject.get('TOT_LIVING_AREA_SF','')} "
             f"sq ft yields an equalized value of ${opinion:,.0f}. The property owner "
             f"respectfully requests the ARB reduce the 2026 assessed value to "
