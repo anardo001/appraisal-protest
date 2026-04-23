@@ -139,6 +139,9 @@ def get_comps_data(conn, subject, exclude_new=True, supporting_only=False, pass_
     if pass_lock is not None:
         bands = [bands[pass_lock - 1]]
 
+    # Track the original pass number for reporting (loop index resets to 1 for locked single-band)
+    pass_num_offset = (pass_lock - 1) if pass_lock is not None else 0
+
     if supporting_only and subj_psf > 0:
         comps     = []
         used_band = bands[0]
@@ -179,7 +182,7 @@ def get_comps_data(conn, subject, exclude_new=True, supporting_only=False, pass_
                 c["_similarity"] = round(0.25 * size_score + 0.35 * age_score + 0.40 * psf_score, 4)
             comps = sorted(candidates, key=lambda c: -c["_similarity"])[:15]
             used_band = (lo_mult, hi_mult, age_delta)
-            pass_num  = pidx
+            pass_num  = pidx + pass_num_offset
             if len(comps) >= 15:
                 break
         band_lo    = int(sqft * used_band[0]) if used_band[0] > 0 else 0
@@ -232,7 +235,7 @@ def get_comps_data(conn, subject, exclude_new=True, supporting_only=False, pass_
                 c["_similarity"] = round(0.25 * size_score + 0.35 * age_score + 0.40 * psf_score, 4)
             comps     = sorted(candidates, key=lambda c: -c["_similarity"])[:15]
             used_band = (lo_mult, hi_mult, age_delta)
-            pass_num  = pidx + 1
+            pass_num  = pidx + pass_num_offset + 1
             if len(comps) >= 15:
                 break
         band_lo    = int(sqft * used_band[0]) if used_band[0] > 0 else 0

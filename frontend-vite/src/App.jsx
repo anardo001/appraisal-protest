@@ -13,7 +13,7 @@
  *
  * @agent: For architecture overview see AGENTS.md at repo root.
  */
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 // API base URL — override via VITE_API_URL env var for production deployments.
 // In dev: http://localhost:8000 (FastAPI/Uvicorn)
@@ -176,9 +176,10 @@ function CompsScreen({ property, onBack, onNext }) {
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
   const [excludeNew, setExcludeNew] = useState(true);
-  const [passOverride, setPassOverride] = useState("1"); // Default to Pass 1; updated after first load
-  const [showScopeInfo, setShowScopeInfo] = useState(false);
 
+  const [passOverride, setPassOverride] = useState(""); // Empty = auto; syncs from first load only
+  const [showScopeInfo, setShowScopeInfo] = useState(false);
+  const firstLoadDone = useRef(false); // Prevents sync loop after first auto-load
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -199,9 +200,12 @@ function CompsScreen({ property, onBack, onNext }) {
 
   useEffect(() => { load(); }, [load]);
 
-  // Sync dropdown to the actual pass the engine chose after first load
+  // Sync dropdown to the actual pass the engine chose — first load only
   useEffect(() => {
-    if (data?.stats?.pass_num) setPassOverride(String(data.stats.pass_num));
+    if (data?.stats?.pass_num && !firstLoadDone.current) {
+      setPassOverride(String(data.stats.pass_num));
+      firstLoadDone.current = true;
+    }
   }, [data?.stats?.pass_num]);
 
   const subjectPsf = Number(property.VAL_PER_SQFT || 0);
@@ -240,7 +244,7 @@ function CompsScreen({ property, onBack, onNext }) {
 
       {data && (
         <div>
-          {data.stats && data.stats.pass_num === 4 && (
+          {data.stats && Number(data.stats.pass_num) === 4 && (
             <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 8, padding: "12px 16px", marginBottom: 14, fontSize: "0.82rem", color: "#0369a1" }}>
               <strong>Note:</strong> To identify {data.stats.total_comps} comparable propert{data.stats.total_comps === 1 ? "y" : "ies"} assessed below your $/sq ft,
               the search was broadened to include all homes in your neighborhood regardless of size or year built.
@@ -307,6 +311,7 @@ function CompsScreen({ property, onBack, onNext }) {
                     onChange={(e) => setPassOverride(e.target.value)}
                     style={{ border: "1px solid #cbd5e1", borderRadius: 6, padding: "4px 10px", fontSize: "0.82rem", background: "white", color: "#1e293b" }}
                   >
+                    <option value="">Auto (recommended)</option>
                     <option value="1">Best match (Pass 1 — ±10yr, 75–125% size)</option>
                     <option value="2">Moderate (Pass 2 — ±15yr, 65–135% size)</option>
                     <option value="3">Broad (Pass 3 — ±20yr, 50–150% size)</option>
