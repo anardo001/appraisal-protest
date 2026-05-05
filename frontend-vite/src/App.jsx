@@ -698,7 +698,7 @@ export default function App() {
         <span className="demo-strip-divider">·</span>
         <span>Conceived, Built & Deployed with </span>
         <a
-          href="https://www.crimsontreesoftware.com/tour"
+          href="https://secondwindfoundry.com/"
           target="_blank"
           rel="noreferrer"
           className="demo-strip-link"
